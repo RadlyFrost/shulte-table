@@ -177,7 +177,7 @@ tk.Button(settings_frame, text="Старт", font=("Helvetica", 14),
           command=start_game).pack(pady=20)
 
 # ----------- ИГРА -----------
-game_frame = tk.Frame(root)
+game_frame = tk.Frame(root) # запуск игры
 
 top = tk.Frame(game_frame)
 top.pack(fill="x", padx=5, pady=5)
