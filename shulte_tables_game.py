@@ -3,8 +3,8 @@ import random        # импорт библиотек (GUI, случайные 
 import time
 
 # -------------------- СОСТОЯНИЕ --------------------
-GRID_SIZE = 5
-EMPTY_CELLS = 0
+GRID_SIZE = 5       # размер таблицы по умолчанию
+EMPTY_CELLS = 0     # количество удалённых клеток по умолчанию
 buttons = []
 numbers = []
 next_number = 1
@@ -13,7 +13,7 @@ timer_id = None
 fullscreen = False
 
 # -------------------- ИГРА --------------------
-def start_game():
+def start_game():    # функция начала игры
     global GRID_SIZE, EMPTY_CELLS
     GRID_SIZE = int(size_var.get())
     EMPTY_CELLS = int(empty_var.get())
@@ -21,7 +21,7 @@ def start_game():
     game_frame.pack(expand=True, fill="both")
     new_game()
 
-def new_game():
+def new_game():   # функция Новая игра
     global buttons, numbers, next_number, start_time, timer_id
 
     if timer_id:
@@ -91,7 +91,7 @@ def on_click(index):
     else:
         flash_error(btn)
 
-def flash_error(btn):
+def flash_error(btn):   # функция Если нажата ошибочная кнопка
     old = btn["bg"]
     btn.config(bg="#f8c6c6")
     info_label.config(text=f"Ошибка! Нужно: {next_number}", fg="red")
@@ -101,12 +101,12 @@ def flash_error(btn):
     ))
 
 # -------------------- ТАЙМЕР --------------------
-def start_timer():
+def start_timer(): # функция запуска таймера игры
     global start_time
     start_time = time.perf_counter()
     update_timer()
 
-def update_timer():
+def update_timer(): # функция обновления таймера
     global timer_id
     if start_time is None:
         return
@@ -114,7 +114,7 @@ def update_timer():
     time_label.config(text=f"Время: {elapsed:.3f} с")
     timer_id = root.after(50, update_timer)
 
-def stop_timer():
+def stop_timer():   # функция остановки таймера (если всё угадано)
     global start_time, timer_id
     if timer_id:
         root.after_cancel(timer_id)
@@ -141,20 +141,20 @@ def resize_fonts(event=None):
             b.config(font=font)
 
 # -------------------- FULLSCREEN --------------------
-def toggle_fullscreen():
+def toggle_fullscreen():  # функция запуска На весь экран
     global fullscreen
     fullscreen = not fullscreen
     root.attributes("-fullscreen", fullscreen)
     root.after(50, resize_fonts)
 
-def exit_fullscreen(event=None):
+def exit_fullscreen(event=None):  # функция отключения На весь экран
     global fullscreen
     fullscreen = False
     root.attributes("-fullscreen", False)
     root.after(50, resize_fonts)
 
 # -------------------- UI --------------------
-root = tk.Tk()
+root = tk.Tk()  # окно игры (tk.inter)
 root.title("Таблица Шульте")
 root.geometry("900x700")
 root.bind("<Escape>", exit_fullscreen)
