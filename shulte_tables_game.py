@@ -1,11 +1,10 @@
 import tkinter as tk # первая версия игры Таблицы Шульте
-import random
+import random        # импорт библиотек (GUI, случайные числа, время)
 import time
 
 # -------------------- СОСТОЯНИЕ --------------------
 GRID_SIZE = 5
 EMPTY_CELLS = 0
-
 buttons = []
 numbers = []
 next_number = 1
@@ -14,7 +13,6 @@ timer_id = None
 fullscreen = False
 
 # -------------------- ИГРА --------------------
-
 def start_game():
     global GRID_SIZE, EMPTY_CELLS
     GRID_SIZE = int(size_var.get())
@@ -103,7 +101,6 @@ def flash_error(btn):
     ))
 
 # -------------------- ТАЙМЕР --------------------
-
 def start_timer():
     global start_time
     start_time = time.perf_counter()
@@ -126,7 +123,6 @@ def stop_timer():
     info_label.config(text="Готово!", fg="blue")
 
 # -------------------- МАСШТАБ --------------------
-
 def resize_fonts(event=None):
     if not buttons:
         return
@@ -145,7 +141,6 @@ def resize_fonts(event=None):
             b.config(font=font)
 
 # -------------------- FULLSCREEN --------------------
-
 def toggle_fullscreen():
     global fullscreen
     fullscreen = not fullscreen
@@ -159,14 +154,12 @@ def exit_fullscreen(event=None):
     root.after(50, resize_fonts)
 
 # -------------------- UI --------------------
-
 root = tk.Tk()
 root.title("Таблица Шульте")
 root.geometry("900x700")
 root.bind("<Escape>", exit_fullscreen)
 
 # ----------- НАСТРОЙКИ -----------
-
 settings_frame = tk.Frame(root)
 settings_frame.pack(expand=True)
 
@@ -184,7 +177,6 @@ tk.Button(settings_frame, text="Старт", font=("Helvetica", 14),
           command=start_game).pack(pady=20)
 
 # ----------- ИГРА -----------
-
 game_frame = tk.Frame(root)
 
 top = tk.Frame(game_frame)
