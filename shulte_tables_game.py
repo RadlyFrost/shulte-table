@@ -1,4 +1,4 @@
-import tkinter as tk # первая версия игры Таблицы Шульте
+import tkinter as tk  # первая версия игры Таблицы Шульте
 import random        # импорт библиотек (GUI, случайные числа, время)
 import time
 
@@ -43,7 +43,8 @@ def new_game():   # Функция создания новой игры
     numbers = list(range(1, usable_cells + 1))  # создаем список чисел
     random.shuffle(numbers)                      # перемешиваем
 
-    empty_indexes = set(random.sample(range(total_cells), EMPTY_CELLS))  # индексы пустых клеток
+    # индексы пустых клеток
+    empty_indexes = set(random.sample(range(total_cells), EMPTY_CELLS))
 
     num_index = 0
     for i in range(GRID_SIZE):
@@ -72,33 +73,26 @@ def new_game():   # Функция создания новой игры
     root.after(50, resize_fonts)  # масштабируем шрифты под размер окна
 
 def on_click(index):
-    """Обработка нажатия на кнопку.
-    Если нажата правильная цифра — кнопка исчезает.
-    Если неправильная — мигает красным."""
+    # Обработка нажатия на кнопку
     global next_number, start_time
 
-    btn = buttons[index]  # получаем объект кнопки по индексу
-    if not isinstance(btn, tk.Button):  # если это Label (пустая клетка) — выходим
+    btn = buttons[index]                 # получаем объект по индексу
+    if not isinstance(btn, tk.Button):   # если это пустая клетка
         return
 
-    value = int(btn["text"])  # получаем число на кнопке
+    value = int(btn["text"])             # число на кнопке
 
     # запуск таймера при первом нажатии
     if value == 1 and next_number == 1:
         start_timer()
 
     if value == next_number:
-        # ------------------- ИЗМЕНЕНИЯ -------------------
-        # Вместо изменения цвета кнопки убираем её с экрана
-        btn.grid_forget()          # если кнопки размещены через grid
-        # btn.place_forget()        # если бы использовался place
-        # btn.pack_forget()         # если бы использовался pack
-        # -------------------------------------------------
-        next_number += 1           # увеличиваем ожидаемое число
-        if next_number > len(numbers):  # если все числа пройдены
-            stop_timer()            # останавливаем таймер
+        btn.config(text="", state="disabled")  # число исчезает, кнопка остаётся
+        next_number += 1
+        if next_number > len(numbers):
+            stop_timer()
     else:
-        flash_error(btn)             # неправильная кнопка — мигает красным
+        flash_error(btn)                  # неправильная кнопка
 
 def flash_error(btn):   # Если нажата неправильная кнопка, она мигает красным
     old = btn["bg"]
@@ -115,7 +109,7 @@ def start_timer():  # Запуск таймера
     start_time = time.perf_counter()
     update_timer()
 
-def update_timer(): # Обновление таймера каждую 50 мс
+def update_timer(): # Обновление таймера
     global timer_id
     if start_time is None:
         return
@@ -123,7 +117,7 @@ def update_timer(): # Обновление таймера каждую 50 мс
     time_label.config(text=f"Время: {elapsed:.3f} с")
     timer_id = root.after(50, update_timer)
 
-def stop_timer():   # Остановка таймера, если игра завершена 
+def stop_timer():   # Остановка таймера
     global start_time, timer_id
     if timer_id:
         root.after_cancel(timer_id)
@@ -132,7 +126,7 @@ def stop_timer():   # Остановка таймера, если игра за�
     info_label.config(text="Готово!", fg="blue")
 
 # -------------------- МАСШТАБ --------------------
-def resize_fonts(event=None):  # Автоматическое масштабирование шрифта под размер окна
+def resize_fonts(event=None):  # Автомасштаб шрифта
     if not buttons:
         return
 
@@ -150,13 +144,13 @@ def resize_fonts(event=None):  # Автоматическое масштабир
             b.config(font=font)
 
 # -------------------- FULLSCREEN --------------------
-def toggle_fullscreen():  # Включение/выключение полноэкранного режима 
+def toggle_fullscreen():  # Включение/выключение полноэкранного режима
     global fullscreen
     fullscreen = not fullscreen
     root.attributes("-fullscreen", fullscreen)
     root.after(50, resize_fonts)
 
-def exit_fullscreen(event=None):  # Выход из полноэкранного режима 
+def exit_fullscreen(event=None):  # Выход из полноэкранного режима
     global fullscreen
     fullscreen = False
     root.attributes("-fullscreen", False)
@@ -168,24 +162,27 @@ root.title("Таблица Шульте")
 root.geometry("900x700")
 root.bind("<Escape>", exit_fullscreen)
 
-# ----------- НАСТРОЙКИ -----------  
+# ----------- НАСТРОЙКИ -----------
 settings_frame = tk.Frame(root)
 settings_frame.pack(expand=True)
 
-tk.Label(settings_frame, text="Таблица Шульте", font=("Helvetica", 24, "bold")).pack(pady=20)
+tk.Label(settings_frame, text="Таблица Шульте",
+         font=("Helvetica", 24, "bold")).pack(pady=20)
 
 tk.Label(settings_frame, text="Размер таблицы (N×N):").pack()
 size_var = tk.StringVar(value="5")
-tk.Spinbox(settings_frame, from_=3, to=8, textvariable=size_var, width=5).pack(pady=5)
+tk.Spinbox(settings_frame, from_=3, to=8,
+           textvariable=size_var, width=5).pack(pady=5)
 
 tk.Label(settings_frame, text="Удалить ячеек:").pack()
 empty_var = tk.StringVar(value="0")
-tk.Spinbox(settings_frame, from_=0, to=20, textvariable=empty_var, width=5).pack(pady=5)
+tk.Spinbox(settings_frame, from_=0, to=20,
+           textvariable=empty_var, width=5).pack(pady=5)
 
 tk.Button(settings_frame, text="Старт", font=("Helvetica", 14),
           command=start_game).pack(pady=20)
 
-# ----------- ИГРА -----------  
+# ----------- ИГРА -----------
 game_frame = tk.Frame(root)
 
 top = tk.Frame(game_frame)
