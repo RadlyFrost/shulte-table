@@ -5,26 +5,26 @@ import time
 # -------------------- СОСТОЯНИЕ --------------------
 GRID_SIZE = 5       # размер таблицы по умолчанию
 EMPTY_CELLS = 0     # количество удалённых клеток по умолчанию
-buttons = []
-numbers = []
-next_number = 1
-start_time = None
-timer_id = None
-fullscreen = False
+buttons = []        # список кнопок и пустых клеток
+numbers = []        # список чисел в игре
+next_number = 1     # следующее число, которое нужно нажать
+start_time = None   # начало таймера
+timer_id = None     # id от after, чтобы можно было остановить таймер
+fullscreen = False  # флаг полноэкранного режима
 
 # -------------------- ИГРА --------------------
-def start_game():    # функция начала игры
+def start_game():    # Функция запуска игры из настроек
     global GRID_SIZE, EMPTY_CELLS
-    GRID_SIZE = int(size_var.get())
-    EMPTY_CELLS = int(empty_var.get())
-    settings_frame.pack_forget()
-    game_frame.pack(expand=True, fill="both")
-    new_game()
+    GRID_SIZE = int(size_var.get())        # берем размер таблицы из Spinbox
+    EMPTY_CELLS = int(empty_var.get())     # берем количество пустых клеток из Spinbox
+    settings_frame.pack_forget()           # убираем окно настроек
+    game_frame.pack(expand=True, fill="both")  # показываем игровое окно
+    new_game()                             # создаем новую игру
 
-def new_game():   # функция Новая игра
+def new_game():   # Функция создания новой игры
     global buttons, numbers, next_number, start_time, timer_id
 
-    if timer_id:
+    if timer_id:    # если таймер работает, останавливаем
         root.after_cancel(timer_id)
 
     start_time = None
@@ -32,6 +32,7 @@ def new_game():   # функция Новая игра
     time_label.config(text="Время: 0.000 с")
     info_label.config(text="Нажмите числа по возрастанию.", fg="black")
 
+    # удаляем старые кнопки и метки
     for b in buttons:
         b.destroy()
     buttons.clear()
@@ -39,11 +40,10 @@ def new_game():   # функция Новая игра
     total_cells = GRID_SIZE * GRID_SIZE
     usable_cells = total_cells - EMPTY_CELLS
 
-    numbers = list(range(1, usable_cells + 1))
-    random.shuffle(numbers)
+    numbers = list(range(1, usable_cells + 1))  # создаем список чисел
+    random.shuffle(numbers)                      # перемешиваем
 
-    # индексы пустых ячеек
-    empty_indexes = set(random.sample(range(total_cells), EMPTY_CELLS))
+    empty_indexes = set(random.sample(range(total_cells), EMPTY_CELLS))  # индексы пустых клеток
 
     num_index = 0
     for i in range(GRID_SIZE):
@@ -55,7 +55,7 @@ def new_game():   # функция Новая игра
             idx = r * GRID_SIZE + c
 
             if idx in empty_indexes:
-                lbl = tk.Label(grid_frame, bg="#222")
+                lbl = tk.Label(grid_frame, bg="#222")  # пустая клетка
                 lbl.grid(row=r, column=c, sticky="nsew", padx=2, pady=2)
                 buttons.append(lbl)
             else:
@@ -64,34 +64,43 @@ def new_game():   # функция Новая игра
                 btn = tk.Button(
                     grid_frame,
                     text=str(value),
-                    command=lambda i=len(buttons): on_click(i)
+                    command=lambda i=len(buttons): on_click(i)  # обработка нажатия
                 )
                 btn.grid(row=r, column=c, sticky="nsew", padx=2, pady=2)
                 buttons.append(btn)
 
-    root.after(50, resize_fonts)
+    root.after(50, resize_fonts)  # масштабируем шрифты под размер окна
 
 def on_click(index):
+    """Обработка нажатия на кнопку.
+    Если нажата правильная цифра — кнопка исчезает.
+    Если неправильная — мигает красным."""
     global next_number, start_time
 
-    btn = buttons[index]
-    if not isinstance(btn, tk.Button):
+    btn = buttons[index]  # получаем объект кнопки по индексу
+    if not isinstance(btn, tk.Button):  # если это Label (пустая клетка) — выходим
         return
 
-    value = int(btn["text"])
+    value = int(btn["text"])  # получаем число на кнопке
 
+    # запуск таймера при первом нажатии
     if value == 1 and next_number == 1:
         start_timer()
 
     if value == next_number:
-        btn.config(state="disabled", bg="#c4f0c4")
-        next_number += 1
-        if next_number > len(numbers):
-            stop_timer()
+        # ------------------- ИЗМЕНЕНИЯ -------------------
+        # Вместо изменения цвета кнопки убираем её с экрана
+        btn.grid_forget()          # если кнопки размещены через grid
+        # btn.place_forget()        # если бы использовался place
+        # btn.pack_forget()         # если бы использовался pack
+        # -------------------------------------------------
+        next_number += 1           # увеличиваем ожидаемое число
+        if next_number > len(numbers):  # если все числа пройдены
+            stop_timer()            # останавливаем таймер
     else:
-        flash_error(btn)
+        flash_error(btn)             # неправильная кнопка — мигает красным
 
-def flash_error(btn):   # функция Если нажата ошибочная кнопка
+def flash_error(btn):   # Если нажата неправильная кнопка, она мигает красным
     old = btn["bg"]
     btn.config(bg="#f8c6c6")
     info_label.config(text=f"Ошибка! Нужно: {next_number}", fg="red")
@@ -101,12 +110,12 @@ def flash_error(btn):   # функция Если нажата ошибочна�
     ))
 
 # -------------------- ТАЙМЕР --------------------
-def start_timer(): # функция запуска таймера игры
+def start_timer():  # Запуск таймера
     global start_time
     start_time = time.perf_counter()
     update_timer()
 
-def update_timer(): # функция обновления таймера
+def update_timer(): # Обновление таймера каждую 50 мс
     global timer_id
     if start_time is None:
         return
@@ -114,7 +123,7 @@ def update_timer(): # функция обновления таймера
     time_label.config(text=f"Время: {elapsed:.3f} с")
     timer_id = root.after(50, update_timer)
 
-def stop_timer():   # функция остановки таймера (если всё угадано)
+def stop_timer():   # Остановка таймера, если игра завершена 
     global start_time, timer_id
     if timer_id:
         root.after_cancel(timer_id)
@@ -123,7 +132,7 @@ def stop_timer():   # функция остановки таймера (если
     info_label.config(text="Готово!", fg="blue")
 
 # -------------------- МАСШТАБ --------------------
-def resize_fonts(event=None):
+def resize_fonts(event=None):  # Автоматическое масштабирование шрифта под размер окна
     if not buttons:
         return
 
@@ -141,25 +150,25 @@ def resize_fonts(event=None):
             b.config(font=font)
 
 # -------------------- FULLSCREEN --------------------
-def toggle_fullscreen():  # функция запуска На весь экран
+def toggle_fullscreen():  # Включение/выключение полноэкранного режима 
     global fullscreen
     fullscreen = not fullscreen
     root.attributes("-fullscreen", fullscreen)
     root.after(50, resize_fonts)
 
-def exit_fullscreen(event=None):  # функция отключения На весь экран
+def exit_fullscreen(event=None):  # Выход из полноэкранного режима 
     global fullscreen
     fullscreen = False
     root.attributes("-fullscreen", False)
     root.after(50, resize_fonts)
 
 # -------------------- UI --------------------
-root = tk.Tk()  # окно игры (tk.inter)
+root = tk.Tk()  # окно игры
 root.title("Таблица Шульте")
 root.geometry("900x700")
 root.bind("<Escape>", exit_fullscreen)
 
-# ----------- НАСТРОЙКИ -----------
+# ----------- НАСТРОЙКИ -----------  
 settings_frame = tk.Frame(root)
 settings_frame.pack(expand=True)
 
@@ -176,8 +185,8 @@ tk.Spinbox(settings_frame, from_=0, to=20, textvariable=empty_var, width=5).pack
 tk.Button(settings_frame, text="Старт", font=("Helvetica", 14),
           command=start_game).pack(pady=20)
 
-# ----------- ИГРА -----------
-game_frame = tk.Frame(root) # запуск игры
+# ----------- ИГРА -----------  
+game_frame = tk.Frame(root)
 
 top = tk.Frame(game_frame)
 top.pack(fill="x", padx=5, pady=5)
@@ -195,4 +204,5 @@ grid_frame = tk.Frame(game_frame)
 grid_frame.pack(expand=True, fill="both", padx=5, pady=5)
 grid_frame.bind("<Configure>", resize_fonts)
 
+# -------------------- ЗАПУСК --------------------
 root.mainloop()
